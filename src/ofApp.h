@@ -74,7 +74,7 @@ public:
 	int pausedTime;
 	
 	// FFT
-	static constexpr size_t nBandsToGet = 512;
+	static constexpr int nBandsToGet = 512;
 	std::array<float, nBandsToGet> fftRaw{{0}};
 	std::array<float, nBandsToGet> fftSmoothed{{0}};
 	float fftSimplifiedRaw[8];

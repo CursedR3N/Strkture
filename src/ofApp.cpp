@@ -44,7 +44,7 @@ void ofApp::setTrackLength(){
 
 //--------------------------------------------------------------
 void ofApp::playTimeChanged(float &playTime){
-	if(!updatingGUI){
+	if(!updatingGUI && !isRecording){
 		timeOffset = ofGetElapsedTimeMillis()-int(playTime*trackLength);
 		music.setPosition(playTime);
 	}
@@ -160,6 +160,9 @@ void ofApp::keyPressed(int key){
 
 		case OF_KEY_F3:
 			// Start recording
+			if (isRecording) {
+				saveRecording();
+			}
 			timeOffset = ofGetElapsedTimeMillis();
 			music.play();
 			music.setPaused(false);

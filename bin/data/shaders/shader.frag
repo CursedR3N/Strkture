@@ -29,5 +29,5 @@ void main(void) {
 	vec2 uvc = uv-vec2(resolution.x/resolution.y,1)/2;
 	vec2 fuv = vec2(length(uvc)/1.25, atan(uvc.x, uvc.y)/pi);
 	fuv.y -= time/20;
-	outputColor = vec4(mix(0, 1, pow(1-length(uvc),2)*max(0.3,fftSmoothed[1]*fftSmoothed[1]))*vec3(step(fract(fuv.x*10-time/3+2*noise(time/2+sin(3*fuv*pi*2))), 0.1)),1);
+	outputColor = vec4(mix(0, 1, pow(1-length(uvc),2)*max(0.3,1.5*fftSmoothed[1]*fftSmoothed[1]))*vec3(step(fract(fuv.x*10-time/3+2*noise(time/2+sin(3*fuv*pi*2))), 0.1)),1);
 }
