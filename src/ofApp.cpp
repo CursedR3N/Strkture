@@ -77,22 +77,20 @@ void ofApp::update() {
 		// Get latest FFT
 		float *val = ofSoundGetSpectrum(nBandsToGet);
 		for (int i = 0;i < nBandsToGet; i++) {
-			fftRaw[i] = val[i];
+			fftRaw[i] = val[i]/2;
 		}
 	
 		// Simplify the FFT to bands
 		int currentSample = 0;
 		for (int i = 0; i < 8; i++) {
+			int sampleCount = pow(2, i+1);
 			float average = 0;
-			int sampleCount = pow(2, i) * 2;
-			if (sampleCount == 7) {
-				sampleCount+=2;
-			}
 			for (int j = 0; j < sampleCount; j++) {
-				average += min(1.0f,fftRaw[currentSample]) * (currentSample + 1);
+				average += fftRaw[currentSample];
 				currentSample++;
 			}
-			average /= currentSample;
+			average /= sampleCount;
+			average *= pow(2, i);
 			fftSimplifiedRaw[i] = average;
 			fftSimplifiedSmooth[i] = max(fftSimplifiedSmooth[i]*fftSmoothness, average);
 		}
@@ -134,7 +132,7 @@ void ofApp::draw(){
 			ofDrawRectangle(10, ofGetHeight()-10, 8*width+10, -125);
 			ofSetColor(255);
 			for (int i = 0;i < 8; i++){
-				ofDrawRectangle(15+i*width,ofGetHeight()-30,width,-(fftSimplifiedSmooth[i]*25));
+				ofDrawRectangle(15+i*width,ofGetHeight()-30,width,-(fftSimplifiedSmooth[i]*100));
 				ofDrawBitmapString(ofToString(i),15+i*width+width/4,ofGetHeight()-15);
 			}
 		}
