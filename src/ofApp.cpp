@@ -1,5 +1,6 @@
 #include "ofApp.h"
 #include "ofImage.h"
+#include "ofUtils.h"
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -46,6 +47,7 @@ void ofApp::setTrackLength(){
 void ofApp::playTimeChanged(float &playTime){
 	if(!updatingGUI && !isRecording){
 		timeOffset = ofGetElapsedTimeMillis()-int(playTime*trackLength);
+		pausedTime = int(playTime*trackLength);
 		music.setPosition(playTime);
 	}
 }
@@ -104,7 +106,7 @@ void ofApp::draw(){
 	// Draw shader
 	ofSetColor(255);
 	shader.begin();
-	shader.setUniform1f("time", float((musicPaused ? pausedTime : ofGetElapsedTimeMillis())-timeOffset)/1000);
+	shader.setUniform1f("time", float(musicPaused ? pausedTime : ofGetElapsedTimeMillis()-timeOffset)/1000);
 	shader.setUniform1fv("fft", fftSimplifiedRaw, 8);
 	shader.setUniform1fv("fftSmoothed", fftSimplifiedSmooth, 8);
 	shader.setUniform2f("resolution", ofGetWidth(), ofGetHeight());
@@ -197,7 +199,7 @@ void ofApp::keyPressed(int key){
 			music.setPaused(!musicPaused);
 			musicPaused = !musicPaused;
 			if (musicPaused) {
-				pausedTime = ofGetElapsedTimeMillis();
+				pausedTime = ofGetElapsedTimeMillis()-timeOffset;
 			} else {
 				timeOffset = ofGetElapsedTimeMillis()-int(playTime*trackLength);
 			}
