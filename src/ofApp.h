@@ -79,6 +79,7 @@ public:
 	std::array<float, nBandsToGet> fftSmoothed{{0}};
 	float fftSimplifiedRaw[8];
 	float fftSimplifiedSmooth[8];
+	float fftInc[8] = {0};
 	
 	// Recorder
 	ofImage img;

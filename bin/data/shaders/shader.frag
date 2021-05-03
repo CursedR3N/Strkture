@@ -1,9 +1,9 @@
 #version 410 core
 uniform float time;
 uniform vec2 resolution;
-uniform sampler2DRect gradient1;
 uniform float fft[8];
 uniform float fftSmoothed[8];
+uniform float fftInc[8];
 out vec4 outputColor;
 
 float rand(vec2 i){
@@ -28,6 +28,6 @@ void main(void) {
 	vec2 uv = gl_FragCoord.xy/vec2(resolution.y);
 	vec2 uvc = uv-vec2(resolution.x/resolution.y,1)/2;
 	vec2 fuv = vec2(length(uvc)/1.25, atan(uvc.x, uvc.y)/pi);
-	fuv.y -= time/20;
-	outputColor = vec4(mix(0, 1, pow(1-length(uvc),2)*max(0.3,1.5*fftSmoothed[1]*fftSmoothed[1]))*vec3(step(fract(fuv.x*10-time/3+2*noise(time/2+sin(3*fuv*pi*2))), 0.1)),1);
+	fuv.y -= time/50;
+	outputColor = vec4(mix(0, 1, pow(1-length(uvc),2)*max(0.75,1.5*fftSmoothed[1]))*vec3(step(fract(fuv.x*10-(time/6+fftInc[1]/15)+2*noise((time/4+fftInc[1]/10)+sin(3*fuv*pi*2))), 0.1)),1);
 }

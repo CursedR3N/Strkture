@@ -95,6 +95,7 @@ void ofApp::update() {
 			average *= pow(2, i);
 			fftSimplifiedRaw[i] = average;
 			fftSimplifiedSmooth[i] = max(fftSimplifiedSmooth[i]*fftSmoothness, average);
+			fftInc[i] += average;
 		}
 	}
 
@@ -109,6 +110,7 @@ void ofApp::draw(){
 	shader.setUniform1f("time", float(musicPaused ? pausedTime : ofGetElapsedTimeMillis()-timeOffset)/1000);
 	shader.setUniform1fv("fft", fftSimplifiedRaw, 8);
 	shader.setUniform1fv("fftSmoothed", fftSimplifiedSmooth, 8);
+	shader.setUniform1fv("fftInc", fftInc, 8);
 	shader.setUniform2f("resolution", ofGetWidth(), ofGetHeight());
 	ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
 	shader.end();
