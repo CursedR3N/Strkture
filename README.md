@@ -7,7 +7,7 @@
 
 ## Building from source
 To build from source you need [Open Frameworks](https://github.com/openframeworks/openFrameworks).
-Navigate to the main directory and run `make Release`. This will generate an executable binary in the `bin` directory, you can run the program either by running `make run` or by running the generated binary.
+First navigate to the main directory and modify line 11 of `config.make` to change the the path to your Open Frameworks installation path, save the file and then run `make Release`. This will generate an executable binary in the `bin` directory, you can run the program either by running `make run` or by running the generated binary.
 
 ## Usage
 First select the audio track by pressing `F1` and the video output location by pressing `F2`.  
