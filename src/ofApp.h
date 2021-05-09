@@ -72,6 +72,7 @@ public:
 	int trackLength;
 	bool musicPaused = false;
 	int pausedTime;
+	void updateAudio();
 	
 	// FFT
 	static constexpr int nBandsToGet = 512;
@@ -85,12 +86,13 @@ public:
 	ofImage img;
 	bool isRecording = false;
 	int frameRate = 30;
+	float frameTime = 1.0/30.0*1000.0;
 	float recordingFrequency = (1.0f/frameRate)*1000;
 	const string tempDir = ".temp";
 	string videoDir = "data/videos";
 	string imageExt = ".jpg";
 	string videoExt = ".mp4";
-	ofImageQualityType imageQuality = OF_IMAGE_QUALITY_BEST;
+	ofImageQualityType imageQuality = OF_IMAGE_QUALITY_HIGH;
 	int framesRecorded;
 	void saveRecording();
 

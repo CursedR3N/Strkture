@@ -55,48 +55,57 @@ void ofApp::playTimeChanged(float &playTime){
 //--------------------------------------------------------------
 void ofApp::saveRecording() {
 	ofSystemAlertDialog("Saving video...");
-	ofSystem("ffmpeg -ts_from_file 2 -framerate " + ofToString(frameRate) + " -i data/" + tempDir + "/%06d" + imageExt + " -i \"" + musicDir + "\" -c:v libx264 -c:a aac -b:a 192k -shortest " + videoDir + "/" + ofGetTimestampString() + videoExt);
+	ofSystem("ffmpeg -framerate " + ofToString(frameRate) + " -i data/" + tempDir + "/%06d" + imageExt + " -i \"" + musicDir + "\" -c:v libx264 -c:a aac -b:a 192k -shortest " + videoDir + "/" + ofGetTimestampString() + videoExt);
 	ofSystem("rm data/" + tempDir + "/*");
+}
+
+void ofApp::updateAudio() {
+
+		// Update music
+		ofSoundUpdate();
+
+		// Update FFT
+		if (!musicPaused) {
+			// Get latest FFT
+			float *val = ofSoundGetSpectrum(nBandsToGet);
+			for (int i = 0;i < nBandsToGet; i++) {
+				fftRaw[i] = val[i]/2;
+			}
+			// Simplify the FFT to bands
+			int currentSample = 0;
+			for (int i = 0; i < 8; i++) {
+				int sampleCount = pow(2, i+1);
+				float average = 0;
+				for (int j = 0; j < sampleCount; j++) {
+					average += fftRaw[currentSample];
+					currentSample++;
+				}
+				average /= sampleCount;
+				average *= pow(2, i);
+				fftSimplifiedRaw[i] = average;
+				fftSimplifiedSmooth[i] = max(fftSimplifiedSmooth[i]*fftSmoothness, average);
+				fftInc[i] += average;
+			}
+		}
+
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
 
-	// Update music
-	ofSoundUpdate();
+	if (!isRecording) {
+		updateAudio();
+	}
+
 	if (!musicPaused) {
 		updatingGUI = true;
 		playTime = music.getPosition();
 		updatingGUI = false;
 	}
-	if(!music.isPlaying() && isRecording){
+
+	if (!music.isPlaying() && isRecording) {
 		isRecording = false;
 		saveRecording();
-	}
-	
-	// Update FFT
-	if (!musicPaused) {
-		// Get latest FFT
-		float *val = ofSoundGetSpectrum(nBandsToGet);
-		for (int i = 0;i < nBandsToGet; i++) {
-			fftRaw[i] = val[i]/2;
-		}
-	
-		// Simplify the FFT to bands
-		int currentSample = 0;
-		for (int i = 0; i < 8; i++) {
-			int sampleCount = pow(2, i+1);
-			float average = 0;
-			for (int j = 0; j < sampleCount; j++) {
-				average += fftRaw[currentSample];
-				currentSample++;
-			}
-			average /= sampleCount;
-			average *= pow(2, i);
-			fftSimplifiedRaw[i] = average;
-			fftSimplifiedSmooth[i] = max(fftSimplifiedSmooth[i]*fftSmoothness, average);
-			fftInc[i] += average;
-		}
 	}
 
 }
@@ -120,6 +129,9 @@ void ofApp::draw(){
 		img.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
 		img.save(tempDir + "/" + ofToString(framesRecorded, 6, 6, '0') + imageExt, imageQuality);
 		framesRecorded++;
+		// Prepare audio for next frame
+		music.setPositionMS(framesRecorded*frameTime);
+		updateAudio();
 	}
 
 	// Draw UI
@@ -177,10 +189,12 @@ void ofApp::keyPressed(int key){
 			// Stop recording
 			music.setPaused(false);
 			musicPaused = false;
-			isRecording = false;
-			music.stop();
-			saveRecording();
-			recordingIndicator = "false";
+			if (isRecording) {
+				isRecording = false;
+				music.stop();
+				saveRecording();
+				recordingIndicator = "false";
+			}
 			break;
 
 		case OF_KEY_F5:
@@ -198,12 +212,14 @@ void ofApp::keyPressed(int key){
 
 		case OF_KEY_F7:
 			// Pause music
-			music.setPaused(!musicPaused);
-			musicPaused = !musicPaused;
-			if (musicPaused) {
-				pausedTime = ofGetElapsedTimeMillis()-timeOffset;
-			} else {
-				timeOffset = ofGetElapsedTimeMillis()-int(playTime*trackLength);
+			if (!isRecording) {
+				music.setPaused(!musicPaused);
+				musicPaused = !musicPaused;
+				if (musicPaused) {
+					pausedTime = ofGetElapsedTimeMillis()-timeOffset;
+				} else {
+					timeOffset = ofGetElapsedTimeMillis()-int(playTime*trackLength);
+				}
 			}
 			break;
 
