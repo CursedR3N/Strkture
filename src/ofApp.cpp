@@ -18,6 +18,7 @@ void ofApp::setup(){
 	setTrackLength();
 	gui.add(currentResolution.setup("Resolution", ofToString(ofGetWidth())+"x"+ofToString(ofGetHeight())));
 	gui.add(recordingIndicator.setup("Recording", "false"));
+	gui.add(shaderTime.setup("Shader Time", "0"));
 	gui.add(playTime.setup("Time %", 0.0f, 0.0f, 1.0f));
 	gui.add(fftSmoothness.setup("FFT Smoothness", 0.95f, 0.9f, 0.9999f));
 	playTime.addListener(this, &ofApp::playTimeChanged);
@@ -114,15 +115,17 @@ void ofApp::update() {
 void ofApp::draw(){
 
 	// Draw shader
+	float time = float(musicPaused ? pausedTime : ofGetElapsedTimeMillis()-timeOffset)/1000;
 	ofSetColor(255);
 	shader.begin();
-	shader.setUniform1f("time", float(musicPaused ? pausedTime : ofGetElapsedTimeMillis()-timeOffset)/1000);
+	shader.setUniform1f("time", time);
 	shader.setUniform1fv("fft", fftSimplifiedRaw, 8);
 	shader.setUniform1fv("fftSmoothed", fftSimplifiedSmooth, 8);
 	shader.setUniform1fv("fftInc", fftInc, 8);
 	shader.setUniform2f("resolution", ofGetWidth(), ofGetHeight());
 	ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
 	shader.end();
+	shaderTime = ofToString(time);
 
 	// Record the screen
 	if (isRecording) {

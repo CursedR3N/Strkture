@@ -58,6 +58,7 @@ public:
 	ofxLabel currentResolution;
 	ofxLabel recordingIndicator;
 	ofxLabel forceTimeIndicator;
+	ofxLabel shaderTime;
 	void playTimeChanged(float &playTime);
 	void setTrackLength();
 	bool updatingGUI = false;
