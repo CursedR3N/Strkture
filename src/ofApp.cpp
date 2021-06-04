@@ -55,7 +55,7 @@ void ofApp::playTimeChanged(float &playTime){
 
 //--------------------------------------------------------------
 void ofApp::saveRecording() {
-	ofSystemAlertDialog("Saving video...");
+	//ofSystemAlertDialog("Saving video...");
 	ofSystem("ffmpeg -framerate " + ofToString(frameRate) + " -i data/" + tempDir + "/%06d" + imageExt + " -i \"" + musicDir + "\" -c:v libx264 -c:a aac -b:a 192k -shortest " + videoDir + "/" + ofGetTimestampString() + videoExt);
 	ofSystem("rm data/" + tempDir + "/*");
 }
@@ -114,8 +114,18 @@ void ofApp::update() {
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-	// Draw shader
 	float time = float(musicPaused ? pausedTime : ofGetElapsedTimeMillis()-timeOffset)/1000;
+
+	if (isRecording) {
+		// Update audio to current frame when recording
+		int recTime = framesRecorded*frameTime;
+		music.setPositionMS(recTime);
+		updateAudio();
+		// Set shader time to recording time
+		time = float(recTime)/1000;
+	}
+
+	// Draw shader
 	ofSetColor(255);
 	shader.begin();
 	shader.setUniform1f("time", time);
@@ -132,9 +142,6 @@ void ofApp::draw(){
 		img.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
 		img.save(tempDir + "/" + ofToString(framesRecorded, 6, 6, '0') + imageExt, imageQuality);
 		framesRecorded++;
-		// Prepare audio for next frame
-		music.setPositionMS(framesRecorded*frameTime);
-		updateAudio();
 	}
 
 	// Draw UI
